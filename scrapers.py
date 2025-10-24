@@ -83,7 +83,6 @@ def scrape_brooklyn_paper_events():
             event_cards = soup.find_all(['article', 'div'], class_=re.compile(r'event|listing|card', re.I))
             
             # TODO: Parse actual event data from HTML
-            # For now, returns empty list if no events found
             
     except Exception as e:
         print(f"Error scraping Brooklyn Paper: {e}")
@@ -95,7 +94,7 @@ def scrape_brooklyn_library_events():
     events = []
     
     try:
-        # Brooklyn Library uses dynamic content, requires JavaScript rendering
+        # Brooklyn Library uses dynamic content, try to find JSON-LD or API endpoints
         url = 'https://www.bklynlibrary.org/event-series'
         headers = {
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
@@ -109,8 +108,7 @@ def scrape_brooklyn_library_events():
             json_scripts = soup.find_all('script', type='application/ld+json')
             
             # TODO: Parse JSON-LD data or use Playwright for dynamic content
-            # For now, returns empty list
-            
+                
     except Exception as e:
         print(f"Error scraping Brooklyn Library: {e}")
     
@@ -148,7 +146,6 @@ def scrape_wagmag_art():
             exhibitions = soup.find_all(['article', 'div'], class_=re.compile(r'exhibition|show|event', re.I))
             
             # TODO: Parse actual exhibition data from HTML
-            # For now, returns empty list if no exhibitions found
                 
     except Exception as e:
         print(f"Error scraping WAGMAG: {e}")
@@ -173,8 +170,7 @@ def scrape_bargemusic():
             concerts = soup.find_all(['div', 'article'], class_=re.compile(r'concert|event|show', re.I))
             
             # TODO: Parse actual concert data from HTML
-            # For now, returns empty list
-            
+                
     except Exception as e:
         print(f"Error scraping Bargemusic: {e}")
     
