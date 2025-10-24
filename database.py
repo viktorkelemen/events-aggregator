@@ -34,7 +34,7 @@ def init_db():
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 title TEXT NOT NULL,
                 description TEXT,
-                date TEXT NOT NULL,
+                date TEXT,
                 location TEXT NOT NULL,
                 latitude REAL,
                 longitude REAL,
