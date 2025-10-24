@@ -6,6 +6,11 @@ from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
 import re
 import json
+from playwright_scraper import (
+    scrape_eventbrite_with_playwright,
+    scrape_mommy_poppins_with_playwright,
+    scrape_macaroni_kid_with_playwright
+)
 
 # Prospect Heights coordinates for distance calculation
 PROSPECT_HEIGHTS = {
@@ -77,17 +82,8 @@ def scrape_brooklyn_paper_events():
             # Try to find event listings (structure may vary)
             event_cards = soup.find_all(['article', 'div'], class_=re.compile(r'event|listing|card', re.I))
             
-            if not event_cards:
-                # If no events found with expected structure, return sample data
-                events.append({
-                    'title': 'Brooklyn Paper Family Festival',
-                    'description': 'Community festival with activities for all ages',
-                    'date': (datetime.now() + timedelta(days=5)).isoformat(),
-                    'location': 'Prospect Park, Brooklyn, NY',
-                    'type': 'art',
-                    'url': url,
-                    'source': 'Brooklyn Paper'
-                })
+            # TODO: Parse actual event data from HTML
+            # For now, returns empty list if no events found
             
     except Exception as e:
         print(f"Error scraping Brooklyn Paper: {e}")
@@ -99,7 +95,7 @@ def scrape_brooklyn_library_events():
     events = []
     
     try:
-        # Brooklyn Library uses dynamic content, try to find JSON-LD or API endpoints
+        # Brooklyn Library uses dynamic content, requires JavaScript rendering
         url = 'https://www.bklynlibrary.org/event-series'
         headers = {
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
@@ -112,64 +108,22 @@ def scrape_brooklyn_library_events():
             # Try to extract JSON-LD structured data
             json_scripts = soup.find_all('script', type='application/ld+json')
             
-            # If no structured data found, return sample events
-            library_branches = [
-                'Central Library',
-                'Prospect Heights Library',
-                'Park Slope Library',
-                'Fort Greene Library'
-            ]
+            # TODO: Parse JSON-LD data or use Playwright for dynamic content
+            # For now, returns empty list
             
-            for i, branch in enumerate(library_branches):
-                events.append({
-                    'title': f'Kids Art Workshop at {branch}',
-                    'description': 'Free art workshop for children aged 7-12',
-                    'date': (datetime.now() + timedelta(days=2+i)).isoformat(),
-                    'location': f'{branch}, Brooklyn, NY',
-                    'type': 'art',
-                    'url': url,
-                    'source': 'Brooklyn Public Library'
-                })
-                
     except Exception as e:
         print(f"Error scraping Brooklyn Library: {e}")
     
     return events
 
 def scrape_eventbrite_music():
-    """Scrape music events from Eventbrite"""
+    """Scrape music events from Eventbrite using Playwright"""
     events = []
     
     try:
-        url = 'https://www.eventbrite.com/b/ny--brooklyn/music'
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'
-        }
-        
-        response = requests.get(url, headers=headers, timeout=10)
-        if response.status_code == 200:
-            soup = BeautifulSoup(response.content, 'html.parser')
-            
-            # Sample music events
-            events.append({
-                'title': 'Live Jazz Night',
-                'description': 'Local jazz musicians perform at Brooklyn venue',
-                'date': (datetime.now() + timedelta(days=3)).isoformat(),
-                'location': 'Brooklyn, NY',
-                'type': 'music',
-                'url': url,
-                'source': 'Eventbrite'
-            })
-            
-            events.append({
-                'title': 'Indie Rock Showcase',
-                'description': 'Brooklyn indie bands performing original music',
-                'date': (datetime.now() + timedelta(days=7)).isoformat(),
-                'location': 'Brooklyn, NY',
-                'type': 'music',
-                'url': url,
-                'source': 'Eventbrite'
-            })
+        # Use Playwright for JavaScript-heavy Eventbrite
+        playwright_events = scrape_eventbrite_with_playwright()
+        events.extend(playwright_events)
                 
     except Exception as e:
         print(f"Error scraping Eventbrite: {e}")
@@ -193,27 +147,8 @@ def scrape_wagmag_art():
             # Try to find exhibition listings
             exhibitions = soup.find_all(['article', 'div'], class_=re.compile(r'exhibition|show|event', re.I))
             
-            # If found, parse them; otherwise return sample data
-            if not exhibitions:
-                events.append({
-                    'title': 'Contemporary Art Gallery Opening',
-                    'description': 'New exhibition featuring emerging Brooklyn artists',
-                    'date': (datetime.now() + timedelta(days=2)).isoformat(),
-                    'location': 'Williamsburg, Brooklyn, NY',
-                    'type': 'art',
-                    'url': url,
-                    'source': 'WAGMAG'
-                })
-                
-                events.append({
-                    'title': 'Photography Exhibit',
-                    'description': 'Black and white street photography of Brooklyn',
-                    'date': (datetime.now() + timedelta(days=6)).isoformat(),
-                    'location': 'Red Hook, Brooklyn, NY',
-                    'type': 'art',
-                    'url': url,
-                    'source': 'WAGMAG'
-                })
+            # TODO: Parse actual exhibition data from HTML
+            # For now, returns empty list if no exhibitions found
                 
     except Exception as e:
         print(f"Error scraping WAGMAG: {e}")
@@ -237,52 +172,39 @@ def scrape_bargemusic():
             # Look for upcoming concerts
             concerts = soup.find_all(['div', 'article'], class_=re.compile(r'concert|event|show', re.I))
             
-            # Sample data
-            events.append({
-                'title': 'Bargemusic Concert Series',
-                'description': 'Classical music concert on the water at Brooklyn Bridge Park',
-                'date': (datetime.now() + timedelta(days=4)).isoformat(),
-                'location': 'Brooklyn Bridge Park, Brooklyn, NY',
-                'type': 'music',
-                'url': url,
-                'source': 'Bargemusic'
-            })
-                
+            # TODO: Parse actual concert data from HTML
+            # For now, returns empty list
+            
     except Exception as e:
         print(f"Error scraping Bargemusic: {e}")
     
     return events
 
 def scrape_mommy_poppins():
-    """Scrape events from Mommy Poppins Brooklyn"""
+    """Scrape events from Mommy Poppins Brooklyn using Playwright"""
     events = []
     
     try:
-        url = 'https://mommypoppins.com/new-york-city/brooklyn'
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-        }
-        
-        response = requests.get(url, headers=headers, timeout=10)
-        if response.status_code == 200:
-            soup = BeautifulSoup(response.content, 'html.parser')
-            
-            # Look for event listings
-            event_items = soup.find_all(['article', 'div'], class_=re.compile(r'event|post|article', re.I))
-            
-            # Sample events
-            events.append({
-                'title': 'Brooklyn Kids Art Workshop',
-                'description': 'Family-friendly art activity in Brooklyn',
-                'date': (datetime.now() + timedelta(days=3)).isoformat(),
-                'location': 'Brooklyn, NY',
-                'type': 'art',
-                'url': url,
-                'source': 'Mommy Poppins'
-            })
+        # Use Playwright for JavaScript-heavy Mommy Poppins
+        playwright_events = scrape_mommy_poppins_with_playwright()
+        events.extend(playwright_events)
                 
     except Exception as e:
         print(f"Error scraping Mommy Poppins: {e}")
+    
+    return events
+
+def scrape_macaroni_kid():
+    """Scrape events from Macaroni KID Brooklyn using Playwright"""
+    events = []
+    
+    try:
+        # Use Playwright for JavaScript-heavy Macaroni KID
+        playwright_events = scrape_macaroni_kid_with_playwright()
+        events.extend(playwright_events)
+                
+    except Exception as e:
+        print(f"Error scraping Macaroni KID: {e}")
     
     return events
 
@@ -297,6 +219,7 @@ def scrape_all_sources():
     all_events.extend(scrape_wagmag_art())
     all_events.extend(scrape_bargemusic())
     all_events.extend(scrape_mommy_poppins())
+    all_events.extend(scrape_macaroni_kid())
     
     # Add distance to each event
     for event in all_events:
