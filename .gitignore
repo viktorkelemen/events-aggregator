@@ -30,6 +30,11 @@ instance/
 # Cache
 events_cache.json
 
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
 # IDE
 .vscode/
 .idea/
